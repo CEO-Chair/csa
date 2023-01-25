@@ -46,11 +46,13 @@ public class AssemblyAnalyzer
         if (!Path.Exists(InputPath))
             throw new FileNotFoundException("InputPath is invalid", InputPath);
 
-        TargetFile = ModuleReader.ReadModule(InputPath);
-
-        if (!TargetFile.IsAssembly)
+        try
         {
-            Console.WriteLine("Target file is not a valid .NET binary.");
+            TargetFile = ModuleReader.ReadModule(InputPath);
+        }
+        catch (PEFileNotSupportedException)
+        {
+            Console.WriteLine("Target file is not a valid .NET binary");
             return;
         }
 
