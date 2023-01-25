@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "csa": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"C:\\Users\\chair\\source\\repos\\csa\\csa\\bin\\Debug\\net7.0\\csa.dll\""
+    }
+  }
+}
