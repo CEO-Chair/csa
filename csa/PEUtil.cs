@@ -1,5 +1,6 @@
-using ICSharpCode.Decompiler.Metadata;
 using System.Reflection.PortableExecutable;
+
+using ICSharpCode.Decompiler.Metadata;
 
 namespace csa;
 

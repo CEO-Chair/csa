@@ -1,11 +1,11 @@
-﻿using CommandLine;
+﻿using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
-using ICSharpCode.Decompiler.TypeSystem;
-using System.Reflection.Metadata;
-using ICSharpCode.Decompiler.Metadata;
+using CommandLine;
 using ICSharpCode.Decompiler;
-using ICSharpCode.Decompiler.CSharp.ProjectDecompiler;
 using ICSharpCode.Decompiler.CSharp.OutputVisitor;
+using ICSharpCode.Decompiler.CSharp.ProjectDecompiler;
+using ICSharpCode.Decompiler.Metadata;
+using ICSharpCode.Decompiler.TypeSystem;
 
 namespace csa;
 
@@ -55,9 +55,9 @@ public class Program {
 
             targetFile = new PEFile(options.InputFilePath, fileStream, PEStreamOptions.PrefetchEntireImage);
         } catch (PEFileNotSupportedException e) {
-            throw new Exception("Target file is not a valid .NET Assembly", e);
+            throw new BadImageFormatException("Target file is not a valid .NET Assembly", e);
         } catch (BadImageFormatException e) {
-            throw new Exception("Target file is not a valid .NET Assembly", e);
+            throw new BadImageFormatException("Target file is not a valid .NET Assembly", e);
         }
 
         CorHeader? corHeader = targetFile.Reader.PEHeaders.CorHeader;
@@ -129,7 +129,7 @@ public class Program {
                     foreach (IMethod method in type.GetMethods()) {
                         Console.Write($"{getIndent(indent)}{method.ReturnType.FullName} {method.Name}(");
                         for (int i = 0; i < method.Parameters.Count; i++) {
-                            IParameter param =  method.Parameters[i];
+                            IParameter param = method.Parameters[i];
 
                             Console.Write($"{param.Type.FullName} {param.Name}");
                             if (i + 1 < method.Parameters.Count) {
@@ -178,8 +178,7 @@ public class Program {
 
         IAssemblyResolver assemblyResolver = new UniversalAssemblyResolver(targetFile.FileName, true, targetFile.DetectTargetFrameworkId());
 
-        WholeProjectDecompiler projectDecompiler = new WholeProjectDecompiler(assemblyResolver)
-        {
+        WholeProjectDecompiler projectDecompiler = new WholeProjectDecompiler(assemblyResolver) {
             MaxDegreeOfParallelism = Math.Max(Environment.ProcessorCount - 1, 1)
         };
 
