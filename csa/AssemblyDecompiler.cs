@@ -1,8 +1,8 @@
 using System.Reflection.PortableExecutable;
-using ICSharpCode.Decompiler.Metadata;
 using ICSharpCode.Decompiler;
 using ICSharpCode.Decompiler.CSharp.OutputVisitor;
 using ICSharpCode.Decompiler.CSharp.ProjectDecompiler;
+using ICSharpCode.Decompiler.Metadata;
 
 namespace csa;
 
@@ -15,7 +15,7 @@ public class AssemblyDecompiler {
     }
 
     public void Run() {
-         if (!Path.Exists(Options.InputFilePath)) {
+        if (!Path.Exists(Options.InputFilePath)) {
             throw new FileNotFoundException("Input file path is invalid", Options.InputFilePath);
         }
 
@@ -57,6 +57,7 @@ public class AssemblyDecompiler {
     }
 
     sealed class ConsoleProgressReporter : IProgress<DecompilationProgress> {
+
         private string? Title;
 
         private bool Updating;
