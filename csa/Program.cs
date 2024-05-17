@@ -27,6 +27,9 @@ public class DecompileOptions {
 
     [Option("output", Default = null, HelpText = "Output directory for decompiled project")]
     public string? OutputDirectory { get; set; }
+
+    [Option("formatting", Default = FormattingStyle.Patch, HelpText = "The format to put the decompiled C# code in")]
+    public FormattingStyle FormattingStyle { get; set; }
 }
 
 public class Program {

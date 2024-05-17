@@ -43,17 +43,57 @@ public class AssemblyDecompiler {
 
         IAssemblyResolver assemblyResolver = new UniversalAssemblyResolver(targetFile.FileName, true, targetFile.DetectTargetFrameworkId());
 
-        WholeProjectDecompiler projectDecompiler = new WholeProjectDecompiler(assemblyResolver) {
-            MaxDegreeOfParallelism = Math.Max(Environment.ProcessorCount - 1, 1)
-        };
+        WholeProjectDecompiler projectDecompiler = new WholeProjectDecompiler(assemblyResolver);
 
         projectDecompiler.Settings.UseNestedDirectoriesForNamespaces = true;
         projectDecompiler.Settings.UseSdkStyleProjectFormat = true;
-        projectDecompiler.Settings.CSharpFormattingOptions = FormattingOptionsFactory.CreateAllman();
+        projectDecompiler.Settings.RemoveDeadCode = true;
+        // Don't work properly and don't support expressions
+        projectDecompiler.Settings.SwitchExpressions = false;
+        
+        projectDecompiler.Settings.CSharpFormattingOptions = Options.FormattingStyle switch {
+            FormattingStyle.Patch => CreatePatchFormat(),
+            FormattingStyle.KRStyle => FormattingOptionsFactory.CreateKRStyle(),
+            FormattingStyle.Allman => FormattingOptionsFactory.CreateAllman(),
+            FormattingStyle.Empty => FormattingOptionsFactory.CreateEmpty(),
+            FormattingStyle.GNU => FormattingOptionsFactory.CreateGNU(),
+            FormattingStyle.Mono => FormattingOptionsFactory.CreateMono(),
+            FormattingStyle.SharpDevelop => FormattingOptionsFactory.CreateSharpDevelop(),
+            FormattingStyle.Whitesmiths => FormattingOptionsFactory.CreateWhitesmiths(),
+            _ => FormattingOptionsFactory.CreateKRStyle()
+        };
 
         projectDecompiler.ProgressIndicator = new ConsoleProgressReporter();
 
         projectDecompiler.DecompileProject(targetFile, Options.OutputDirectory);
+    }
+
+    private static CSharpFormattingOptions CreatePatchFormat() {
+        CSharpFormattingOptions format = FormattingOptionsFactory.CreateKRStyle();
+
+        format.ClassBraceStyle = BraceStyle.EndOfLine;
+        format.ConstructorBraceStyle = BraceStyle.EndOfLine;
+        format.DestructorBraceStyle = BraceStyle.EndOfLine;
+        format.EnumBraceStyle = BraceStyle.EndOfLine;
+        format.EventBraceStyle = BraceStyle.EndOfLine;
+        format.InterfaceBraceStyle = BraceStyle.EndOfLine;
+        format.MethodBraceStyle = BraceStyle.EndOfLine;
+        format.PropertyBraceStyle = BraceStyle.EndOfLine;
+        format.StatementBraceStyle = BraceStyle.EndOfLine;
+        format.StructBraceStyle = BraceStyle.EndOfLine;
+        format.AnonymousMethodBraceStyle = BraceStyle.EndOfLine;
+        format.EventAddBraceStyle = BraceStyle.EndOfLine;
+        format.EventRemoveBraceStyle = BraceStyle.EndOfLine;
+        format.PropertyGetBraceStyle = BraceStyle.EndOfLine;
+        format.PropertySetBraceStyle = BraceStyle.EndOfLine;
+    
+        // Arrays should have a new line for every entry, since it's easier to insert values in patches that way
+        format.ArrayInitializerWrapping = Wrapping.WrapAlways;
+        format.ArrayInitializerBraceStyle = BraceStyle.EndOfLine;
+
+        format.MinimumBlankLinesBetweenMembers = 1;
+
+        return format;
     }
 
     sealed class ConsoleProgressReporter : IProgress<DecompilationProgress> {
